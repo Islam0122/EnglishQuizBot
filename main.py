@@ -1,46 +1,23 @@
 import asyncio
-import os
-from dotenv import load_dotenv
-from  aiogram import Bot,Dispatcher
-from aiogram.types import Message,FSInputFile
-from aiogram.filters import Command
+from aiogram import Bot, Dispatcher, types
+from config import Config, load_config
+from comand_Start import router_start
+from comand_MyStats import router_mystats
+from comand_Admin import router_admin
 
-load_dotenv()
+async def main() -> None:
+    config: Config = load_config()
+    bot = Bot(token=config.bot.token)
+    dp = Dispatcher()
 
-Token = os.getenv("Token")
+    dp.include_router(router_start)
+    dp.include_router(router_mystats)
+    dp.include_router(router_admin)
 
-bot = Bot(token=Token)
-dp = Dispatcher()
-
-@dp.message(Command('start'))
-async def start_command(message: Message):
-    await message.answer_photo(
-        photo=FSInputFile("eng2.png"),
-        caption="Привет я EnglishQuizBot,если хочешь узнать поподробнее то нажми на /help"
-    )
-@dp.message(Command('help'))
-async def help_command(message: Message):
-    await message.answer_photo(
-        photo=FSInputFile("./eng.png"),
-        caption="Я бот про английского викторины, с помощью меня ты сможешь улучшить свой английский и память"
-
-    )
-@dp.message(Command('about_bot'))
-async def about_bot_command(message: Message):
-    await message.answer_photo(
-        photo=FSInputFile("./eng.png"),
-        caption="Я был создан в Бишкеке \nУ вас наверное есть вопросы Зачем меня создали?\n"
-        "Я нужен для того чтобы люди начали хоть немного разговаривать на английском"
-
-    )
-
-async def main():
+    await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
-if __name__ == '__main__':
-    asyncio.run(main())
-
-
+asyncio.run(main())
 
 
 
